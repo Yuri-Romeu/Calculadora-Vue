@@ -1,47 +1,93 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+import { reactive } from 'vue';
+import Inputs from './components/Inputs.vue';
+import Operacao from './components/Operacao.vue';
+import Resultado from './components/Resultado.vue';
+
+const estado = reactive({
+     primeiroNumero: 0,
+     segundoNumero: 0,
+     operacao: 'add',
+     resultado: 0,
+});
+
+const calcular = () => {
+     if (estado.primeiroNumero === '' || estado.segundoNumero === '') {
+          estado.resultado = 0;
+          return;
+     }
+
+     const num1 = Number(estado.primeiroNumero);
+     const num2 = Number(estado.segundoNumero);
+
+     if (isNaN(num1) || isNaN(num2)) {
+          estado.resultado = 0;
+          return;
+     }
+
+     if (estado.operacao === 'div' && num2 === 0) {
+          estado.resultado = 'Erro';
+          return;
+     }
+
+     switch (estado.operacao) {
+          case 'sub':
+               estado.resultado = num1 - num2;
+               break;
+          case 'mul':
+               estado.resultado = num1 * num2;
+               break;
+          case 'div':
+               estado.resultado = num1 / num2;
+               break;
+          default: // add
+               estado.resultado = num1 + num2;
+               break;
+     }
+
+     if (estado.resultado === 'infinity') {
+          estado.resultado = 'Não é possivel dividir por 0';
+     }
+};
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+     <div class="container">
+          <div class="row">
+               <h1 class="title">Calculadora Aritmética</h1>
+               <form class="form">
+                    <Inputs
+                         :funcao-calcular="calcular"
+                         v-model:primeiroNumero="estado.primeiroNumero"
+                         v-model:segundoNumero="estado.segundoNumero"
+                    />
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
+                    <Operacao :funcao-calcular="calcular" v-model:operacao="estado.operacao" />
+               </form>
 
-  <main>
-    <TheWelcome />
-  </main>
+               <Resultado :resultado="estado.resultado" />
+          </div>
+     </div>
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
+.container {
+     display: flex;
+     align-items: center;
+     flex-direction: column;
+     padding-top: 50px;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+.title {
+     text-align: center;
+     margin: 10px 0;
+     font-size: 50px;
 }
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
+.form {
+     text-align: center;
+     display: flex;
+     align-items: center;
+     flex-direction: column;
 }
 </style>
